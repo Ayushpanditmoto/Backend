@@ -5,6 +5,7 @@ require('dotenv').config({ path: './config/config.env' });
 const port = process.env.PORT || 3000; // console.log(typeof process.env.PORT);
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const errorHandler = require('./middleware/errorHandler');
 require('colors');
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -16,6 +17,7 @@ app.use(express.json());
 //Load routes
 const bootcamps = require('./routes/bootcampsRoutes');
 app.use('/api/v1/bootcamps', bootcamps);
+app.use(errorHandler); // we add this middleware after the routes so that it will be executed after the routes
 
 app.get('/', (req, res) => {
   res.send('Hello World');
