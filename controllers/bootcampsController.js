@@ -5,11 +5,13 @@ const geocoder = require('../utils/geocoders');
 
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
   const bootcamp = await BootcampModel.findById(req.params.id);
+  console.log(bootcamp);
   if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
     );
   }
+
   res.status(200).json({ success: true, data: bootcamp });
 });
 
@@ -46,17 +48,57 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 });
 
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  let query;
-  let queryStr = JSON.stringify(req.query);
+  let query; // here we will store our query
+  const reqQuery = { ...req.query }; // copy of req.query
+  const removeFields = ['select', 'sort', 'page', 'limit']; // fields to be removed from reqQuery
+  removeFields.forEach((param) => delete reqQuery[param]); // remove fields from reqQuery
+  let queryStr = JSON.stringify(reqQuery); // convert reqQuery to string
   queryStr = queryStr.replace(
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`
-  );
-  query = BootcampModel.find(JSON.parse(queryStr));
-  const bootcamps = await query;
-  res
-    .status(200)
-    .json({ success: true, count: bootcamps.length, data: bootcamps });
+  ); // replace gt, gte, lt, lte, in with $gt, $gte, $lt, $lte, $in
+  query = BootcampModel.find(JSON.parse(queryStr)); // find bootcamps with queryStr
+  if (req.query.select) {
+    // if select is present in req.query
+    const fields = req.query.select.split(',').join(' '); // convert select to string
+    // and replace , with space name description
+    query = query.select(fields); // select fields
+  }
+  if (req.query.sort) {
+    // if sort is present in req.query
+    const sortBy = req.query.sort.split(',').join(' '); // convert sort to string
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort('-createdAt'); // sort by createdAt in descending order
+  }
+  const page = parseInt(req.query.page, 10) || 1; // if page is not present in req.query, set page to 1
+  const limit = parseInt(req.query.limit, 10) || 25; // if limit is not present in req.query, set limit to 25
+  const startIndex = (page - 1) * limit; // calculate startIndex
+  const endIndex = page * limit; // calculate endIndex
+  const total = await BootcampModel.countDocuments(); // count total documents
+  query = query.skip(startIndex).limit(limit); // skip startIndex and limit to limit
+  const bootcamps = await query; // execute query
+  const pagination = {}; // pagination object
+  if (endIndex < total) {
+    // if endIndex is less than total
+    pagination.next = {
+      // set next object
+      page: page + 1,
+      limit, // limit: limit
+    };
+  }
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit,
+    };
+  }
+  res.status(200).json({
+    success: true,
+    count: bootcamps.length,
+    pagination,
+    data: bootcamps,
+  });
 });
 
 exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {

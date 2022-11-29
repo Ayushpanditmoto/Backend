@@ -28,12 +28,11 @@ app.listen(port, () => {
     `Server Running in ${process.env.NODE_ENV} mode at http://localhost:${port}`
       .bgBlue
   );
+  //connect to database
+  mongoose
+    .connect(process.env.MONGO_URI, {
+      useNewUrlParser: true, // it
+    })
+    .then(() => console.log(`MongoDB Connected`.bgGreen))
+    .catch((err) => console.log(`MongoDB Connection Error: ${err}`.bgRed));
 });
-
-//connect to database
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true, // it
-  })
-  .then(() => console.log(`MongoDB Connected`.bgGreen))
-  .catch((err) => console.log(`MongoDB Connection Error: ${err}`.bgRed));
