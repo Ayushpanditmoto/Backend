@@ -1,6 +1,7 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/asyncHandler");
-const Course = require("../models/courseModel");
+const bootcampModel = require("../models/bootcampModel");
+const courseModel = require("../models/courseModel");
 
 // @desc      Get courses
 // @route     GET /api/v1/courses
@@ -9,13 +10,13 @@ const Course = require("../models/courseModel");
 exports.getCourses = asyncHandler(async (req, res, next) => {
   let query;
   if (req.params.bootcampId) {
-    query = Course.find({ bootcamp: req.params.bootcampId });
+    query = courseModel.find({ bootcamp: req.params.bootcampId });
   } else {
     //get all courses
     // query = Course.find().populate("bootcamp");
 
     //get all courses and populate the bootcamp field with name and description only
-    query = Course.find().populate({
+    query = courseModel.find().populate({
       path: "bootcamp",
       select: "name description",
     });
@@ -32,7 +33,7 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/courses/:id
 // @access    Public
 exports.getCourse = asyncHandler(async (req, res, next) => {
-  const course = await Course.findById(req.params.id).populate({
+  const course = await courseModel.findById(req.params.id).populate({
     path: "bootcamp",
     select: "name description",
   });
@@ -53,7 +54,7 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.addCourse = asyncHandler(async (req, res, next) => {
   req.body.bootcamp = req.params.bootcampId;
-  const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+  const bootcamp = await bootcampModel.findById(req.params.bootcampId);
   if (!bootcamp) {
     return next(
       new ErrorResponse(
@@ -62,7 +63,7 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
       )
     );
   }
-  const course = await Course.create(req.body);
+  const course = await courseModel.create(req.body);
   res.status(200).json({
     success: true,
     data: course,
@@ -73,14 +74,17 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/courses/:id
 // @access    Private
 exports.updateCourse = asyncHandler(async (req, res, next) => {
-  let course = await Course.findById(req.params.id);
+  let course = await courseModel.findById(req.params.id);
   if (!course) {
     return next(
       new ErrorResponse(`No course with the id of ${req.params.id}`),
       404
     );
   }
-  course = await Course.findByIdAndUpdate(req.params);
+  course = await courseModel.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
   res.status(200).json({
     success: true,
     data: course,
@@ -91,7 +95,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/v1/courses/:id
 // @access    Private
 exports.deleteCourse = asyncHandler(async (req, res, next) => {
-  const course = await Course.findById(req.params.id);
+  const course = await courseModel.findById(req.params.id);
   if (!course) {
     return next(
       new ErrorResponse(`No course with the id of ${req.params.id}`),
