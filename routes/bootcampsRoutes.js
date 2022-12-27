@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const {
   getBootcamps,
   getBootcamp,
@@ -9,8 +9,14 @@ const {
   getBootcampsInRadius,
 } = require('../controllers/bootcampsController');
 
-router.route('/').get(getBootcamps).post(createBootcamp);
+// Include other resource routers
+const courseRouter = require('./coursesRoutes');
+// const reviewRouter = require('./reviewsRoutes');
 
+// Re-route into other resource routers
+router.use('/:bootcampId/courses', courseRouter);
+
+router.route('/').get(getBootcamps).post(createBootcamp);
 router
   .route('/:id')
   .get(getBootcamp)

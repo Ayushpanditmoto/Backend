@@ -1,26 +1,31 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 //Load env variables
-require('dotenv').config({ path: './config/config.env' });
+const path = require("path");
+require("dotenv").config({
+  path: path.join(__dirname, "./config/config.env"),
+});
 const port = process.env.PORT || 3000; // console.log(typeof process.env.PORT);
-const morgan = require('morgan');
-const mongoose = require('mongoose');
-const errorHandler = require('./middleware/errorHandler');
-require('colors');
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+const errorHandler = require("./middleware/errorHandler");
+require("colors");
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
 app.use(express.json());
 // const logger = require('./middleware/logger');
 // app.use(logger);
 
 //Load routes
-const bootcamps = require('./routes/bootcampsRoutes');
-app.use('/api/v1/bootcamps', bootcamps);
+const bootcamps = require("./routes/bootcampsRoutes");
+app.use("/api/v1/bootcamps", bootcamps);
+const courses = require("./routes/coursesRoutes");
+app.use("/api/v1/courses", courses);
 app.use(errorHandler); // we add this middleware after the routes so that it will be executed after the routes
 
-app.get('/', (req, res) => {
-  res.send('Hello World');
+app.get("/", (req, res) => {
+  res.send("Hello World");
 });
 
 app.listen(port, () => {
