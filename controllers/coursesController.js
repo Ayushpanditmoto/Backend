@@ -1,6 +1,6 @@
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/asyncHandler');
-const Course = require('../models/courseModel');
+const ErrorResponse = require("../utils/errorResponse");
+const asyncHandler = require("../middleware/asyncHandler");
+const Course = require("../models/courseModel");
 
 // @desc      Get courses
 // @route     GET /api/v1/courses
@@ -11,9 +11,13 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampId) {
     query = Course.find({ bootcamp: req.params.bootcampId });
   } else {
+    //get all courses
+    // query = Course.find().populate("bootcamp");
+
+    //get all courses and populate the bootcamp field with name and description only
     query = Course.find().populate({
-      path: 'bootcamp',
-      select: 'name description',
+      path: "bootcamp",
+      select: "name description",
     });
   }
   const courses = await query;
@@ -29,8 +33,8 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
 // @access    Public
 exports.getCourse = asyncHandler(async (req, res, next) => {
   const course = await Course.findById(req.params.id).populate({
-    path: 'bootcamp',
-    select: 'name description',
+    path: "bootcamp",
+    select: "name description",
   });
   if (!course) {
     return next(
