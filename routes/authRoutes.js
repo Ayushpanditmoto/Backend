@@ -8,6 +8,7 @@ const {
   resetPassword,
   updateDetails,
   updatePassword,
+  logout,
 } = require("../controllers/authControllers");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -18,5 +19,6 @@ router.route("/me").get(protect, getMe);
 router.route("/reset/:resetToken").put(resetPassword);
 router.route("/updatedetails").put(protect, updateDetails);
 router.route("/updatepassword").put(protect, updatePassword);
+router.route("/logout").get(protect, logout);
 
 module.exports = router;

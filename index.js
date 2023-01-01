@@ -28,6 +28,8 @@ const courses = require("./routes/coursesRoutes");
 app.use("/api/v1/courses", courses);
 const auth = require("./routes/authRoutes");
 app.use("/api/v1/auth", auth);
+const users = require("./routes/userRoutes");
+app.use("/api/v1/users", users);
 app.use(errorHandler); // we add this middleware after the routes so that it will be executed after the routes
 
 app.get("/", (req, res) => {
