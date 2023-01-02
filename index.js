@@ -11,10 +11,15 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/errorHandler");
 require("colors");
+app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-app.use(express.json());
+
+//sanitize data
+const mongoSanitize = require("express-mongo-sanitize");
+app.use(mongoSanitize());
+
 // const logger = require('./middleware/logger');
 // app.use(logger);
 
