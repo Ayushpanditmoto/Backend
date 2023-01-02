@@ -30,6 +30,8 @@ const auth = require("./routes/authRoutes");
 app.use("/api/v1/auth", auth);
 const users = require("./routes/userRoutes");
 app.use("/api/v1/users", users);
+const reviews = require("./routes/reviewRoutes");
+app.use("/api/v1/reviews", reviews);
 app.use(errorHandler); // we add this middleware after the routes so that it will be executed after the routes
 
 app.get("/", (req, res) => {

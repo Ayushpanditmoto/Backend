@@ -10,7 +10,7 @@ dotenv.config({ path: "./config/config.env" });
 const bootcampModel = require("./models/bootcampModel");
 const courseModel = require("./models/courseModel");
 const userModel = require("./models/userModel");
-// const Review = require('./models/Review');
+const Review = require("./models/reviewModel");
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -30,9 +30,9 @@ const users = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/users.json`, "utf-8")
 );
 
-// const reviews = JSON.parse(
-//   fs.readFileSync(`${__dirname}/_data/reviews.json`, 'utf-8')
-// );
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/_data/reviews.json`, "utf-8")
+);
 
 // Import into DB
 const importData = async () => {
@@ -40,7 +40,7 @@ const importData = async () => {
     await bootcampModel.create(bootcamps);
     await courseModel.create(courses);
     await userModel.create(users);
-    // await Review.create(reviews);
+    await Review.create(reviews);
     console.log("Data Imported...".green.inverse);
     process.exit();
   } catch (err) {
@@ -54,7 +54,7 @@ const deleteData = async () => {
     await bootcampModel.deleteMany();
     await courseModel.deleteMany();
     await userModel.deleteMany();
-    // await Review.deleteMany();
+    await Review.deleteMany();
     console.log("Data Destroyed...".red.inverse);
     process.exit();
   } catch (err) {
