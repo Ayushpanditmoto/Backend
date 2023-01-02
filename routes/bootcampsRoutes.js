@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const BootcampModel = require("../models/bootcampModel");
+
 const {
   getBootcamps,
   getBootcamp,
@@ -10,6 +12,7 @@ const {
 } = require("../controllers/bootcampsController");
 
 const { protect, authorize } = require("../middleware/authMiddleware");
+const advancedResults = require("../middleware/advancedResults");
 
 // Include other resource routers
 const courseRouter = require("./coursesRoutes");
@@ -22,7 +25,7 @@ router.use("/:bootcampId/courses", courseRouter);
 
 router
   .route("/")
-  .get(getBootcamps)
+  .get(advancedResults(BootcampModel, "courses"), getBootcamps)
   .post(protect, authorize("publisher", "admin"), createBootcamp);
 router
   .route("/:id")
