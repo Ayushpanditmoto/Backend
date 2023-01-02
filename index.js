@@ -9,7 +9,12 @@ const port = process.env.PORT || 3000; // console.log(typeof process.env.PORT);
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 const errorHandler = require("./middleware/errorHandler");
+const cors = require("cors");
 require("colors");
 app.use(express.json());
 if (process.env.NODE_ENV === "development") {
@@ -19,6 +24,23 @@ if (process.env.NODE_ENV === "development") {
 //sanitize data
 const mongoSanitize = require("express-mongo-sanitize");
 app.use(mongoSanitize());
+//set security headers
+app.use(helmet());
+//prevent xss attacks
+app.use(xss()); // this middleware should be used after the body parser it will clean the req.body, req.query, and req.params from any user input that contains malicious HTML code.
+//rate limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+});
+
+app.use(limiter);
+
+//prevent http param pollution
+app.use(hpp());
+
+//enable cors
+app.use(cors());
 
 // const logger = require('./middleware/logger');
 // app.use(logger);
